@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <title>LusoPanda • Português (Portugal) para AE VJ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a href="index.html" class="brand" aria-label="Go to Home">
+      <span class="logo">🐼</span>
+      <span class="brand-text">
+        <strong>LusoPanda</strong>
+        <small>Português (Portugal) • AE VJ</small>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="Main navigation">
+      <a href="index.html" class="active">Home</a>
+      <a href="introducao.html">Introduction</a>
+      <a href="aprender.html">Learn</a>
+      <a href="exercicios.html">Exercises</a>
+      <a href="modulos.html">Modules</a>
+      <a href="escola.html">Our School</a>
+      <a href="sobre.html">About</a>
+    </nav>
+  </div>
+</header>
+
+<main class="hero">
+  <div class="container hero-grid">
+
+    <div class="hero-left">
+      <div class="badge-row">
+        <span class="pill">🎧 Audio pt-PT</span>
+        <span class="pill">🎮 Games + stars</span>
+        <span class="pill">🏫 School Portuguese</span>
+      </div>
+
+      <h1>Learn Portuguese (Portugal) <br/>with short fun games 🐼</h1>
+
+      <p class="muted">
+        Made for students who speak English and are starting from zero.
+        Tap, listen, repeat, and practice in a simple way.
+      </p>
+
+      <div class="actions">
+        <a class="btn primary" href="aprender.html">🚀 Start learning</a>
+        <a class="btn ghost" href="exercicios.html">🎯 Practice games</a>
+      </div>
+
+      <div class="mini-steps">
+        <div class="step">
+          <div class="step-ico">1</div>
+          <div>
+            <strong>Listen</strong>
+            <div class="muted">Click 🔊 and hear pt-PT</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-ico">2</div>
+          <div>
+            <strong>Repeat</strong>
+            <div class="muted">Say it out loud</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-ico">3</div>
+          <div>
+            <strong>Practice</strong>
+            <div class="muted">Play games & get ⭐</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-photo clickable"
+           role="link"
+           tabindex="0"
+           data-href="escola.html"
+           aria-label="Open Our School">
+        <!-- ✅ HOME: usa escola2 -->
+        <img src="img/escola2.jpeg" alt="Escola Visconde de Jeromenha" />
+        <div class="photo-caption">
+          <strong>Our School</strong>
+          <span class="muted">Visconde de Jeromenha</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="container" style="margin-top:18px;">
+    <section class="card">
+      <div class="section-title">
+        <h2>Where do you want to go?</h2>
+        <p class="muted">Tap a card to open the right section</p>
+      </div>
+
+      <div class="grid-3">
+        <article class="img-card clickable" data-href="aprender.html" tabindex="0" role="link" aria-label="Open Learn">
+          <img
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=70"
+            alt="Students learning"
+          />
+          <div class="pad">
+            <h3>Learn</h3>
+            <p class="muted">Flashcards + audio. Beginner friendly.</p>
+            <div class="tiny">Level 1–2</div>
+          </div>
+        </article>
+
+        <article class="img-card clickable" data-href="exercicios.html" tabindex="0" role="link" aria-label="Open Exercises">
+          <img
+            src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=70"
+            alt="Practice games"
+          />
+          <div class="pad">
+            <h3>Exercises</h3>
+            <p class="muted">Listen & choose • Drag • Memory.</p>
+            <div class="tiny">Level 1–3</div>
+          </div>
+        </article>
+
+        <article class="img-card clickable" data-href="modulos.html" tabindex="0" role="link" aria-label="Open Modules">
+          <img
+            src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=1600&q=70"
+            alt="Friends talking"
+          />
+          <div class="pad">
+            <h3>Modules</h3>
+            <p class="muted">4 modules: greetings, school, food, hobbies.</p>
+            <div class="tiny">Module 1–4</div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2025 LusoPanda • AE VJ • Educational Project</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+
+<!-- ✅ para os cards clickable funcionarem SEM procurares nada -->
+<script>
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-href]");
+    if(el) window.location.href = el.dataset.href;
+  });
+  document.addEventListener("keydown", (e) => {
+    if(e.key !== "Enter") return;
+    const el = document.activeElement?.closest?.("[data-href]");
+    if(el) window.location.href = el.dataset.href;
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <title>LusoPanda — Learn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a href="index.html" class="brand">
+      <span class="logo">🐼</span>
+      <span class="brand-text">
+        <strong>LusoPanda</strong>
+        <small>Portuguese (Portugal) for AE VJ students</small>
+      </span>
+    </a>
+
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="introducao.html">Intro</a>
+      <a href="aprender.html" class="active">Learn</a>
+      <a href="exercicios.html">Exercises</a>
+      <a href="modulos.html">Modules</a>
+      <a href="escola.html">School</a>
+      <a href="sobre.html">About</a>
+    </nav>
+  </div>
+</header>
+
+<main class="hero">
+  <div class="container">
+
+    <div class="hero-split">
+      <div class="card">
+        <h1>Learn Portuguese (Portugal) 🐼</h1>
+        <p class="subtitle">
+          You are new to Portuguese — that’s ok.
+          Press <strong>Listen</strong>, repeat out loud, and hide English when you feel ready.
+        </p>
+
+        <div class="row" style="flex-wrap:wrap; margin-top:10px;">
+          <span class="pill">✅ Clear English instructions</span>
+          <span class="pill">🎧 Audio (pt-PT)</span>
+          <span class="pill">⭐ Progress saved</span>
+        </div>
+
+        <div class="kids-note">
+          <strong>How to use:</strong> 1) 🔊 Listen → 2) Repeat → 3) Hide English → 4) Play mini-game.
+        </div>
+
+        <div class="big-actions" style="margin-top:10px;">
+          <button class="bigbtn primary" id="btnL1" type="button">Level 1</button>
+          <button class="bigbtn" id="btnL2" type="button">Level 2</button>
+        </div>
+
+        <p class="muted" style="margin-top:10px;">
+          <strong>Note:</strong> Modules 3 & 4 (Food + Free time) are included inside <strong>Level 2</strong>
+          so you only have 2 learning levels, but still a lot of content.
+        </p>
+      </div>
+
+      <div class="hero-photo">
+        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=70" alt="Students learning">
+      </div>
+    </div>
+
+    <section class="card" style="margin-top:16px;">
+      <div class="spread">
+        <div>
+          <h2 style="margin:0;" id="learnTitle">Level 1 — Start from zero</h2>
+          <p class="muted" style="margin:6px 0 0;">
+            Cards done: <strong id="doneCount">0</strong> / <strong id="totalCount">0</strong>
+          </p>
+        </div>
+        <div style="min-width:260px; flex:1; max-width:420px;">
+          <div class="progressbar" aria-label="Progress bar">
+            <div id="barFill"></div>
+          </div>
+        </div>
+        <button class="bigbtn" type="button" id="resetProgress">Reset progress</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px;">
+      <h2 style="margin-top:0;">Flashcards</h2>
+      <p class="muted">Tap a card. English helps. Portuguese is what you practice.</p>
+      <div class="learn-grid" id="learnGrid" aria-live="polite"></div>
+    </section>
+
+    <section class="card" style="margin-top:14px;">
+      <h2 style="margin-top:0;">Mini-Game 🎧 Listen & choose</h2>
+      <p class="muted">Press “Play sound”, then choose the correct English meaning.</p>
+
+      <div class="big-actions">
+        <button class="bigbtn primary" type="button" id="playSound">🔊 Play sound</button>
+        <button class="bigbtn" type="button" id="newQuestion">🔁 New question</button>
+      </div>
+
+      <div class="muted" style="margin-top:10px;">
+        Score: <strong id="gameScore">0</strong>
+      </div>
+
+      <div class="big-actions" id="choices"></div>
+      <div id="gameFeedback" class="muted" style="margin-top:10px;" aria-live="polite"></div>
+    </section>
+
+    <div class="actions">
+      <a href="exercicios.html" class="btn">Go to Exercises</a>
+      <a href="modulos.html" class="btn ghost">Go to Modules</a>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <p>© 2025 LusoPanda • AE VJ • Educational Project</p>
+</footer>
+
+<script type="module">
+  import { LEVELS, sayPT } from "./js/app.js";
+
+  const KEY_DONE = "lp_learn_done";
+  const KEY_GAME = "lp_learn_game";
+  const KEY_LEVEL = "lp_learn_level";
+
+  let ACTIVE = LEVELS.L1;
+  let levelKey = localStorage.getItem(KEY_LEVEL) || "L1";
+
+  let current = null;
+  let gameScore = 0;
+
+  function getDone(){
+    try { return JSON.parse(localStorage.getItem(KEY_DONE)) || {}; }
+    catch { return {}; }
+  }
+  function setDone(obj){ localStorage.setItem(KEY_DONE, JSON.stringify(obj)); }
+
+  function updateProgressUI(){
+    const done = getDone();
+    const total = ACTIVE.length;
+    const doneCount = ACTIVE.filter(c => done[c.id]).length;
+
+    document.getElementById("totalCount").textContent = total;
+    document.getElementById("doneCount").textContent = doneCount;
+
+    const pct = total ? Math.round((doneCount/total)*100) : 0;
+    document.getElementById("barFill").style.width = pct + "%";
+  }
+
+  function renderCards(){
+    const grid = document.getElementById("learnGrid");
+    grid.innerHTML = "";
+    const done = getDone();
+
+    ACTIVE.forEach(card => {
+      const el = document.createElement("div");
+      el.className = "learn-card";
+
+      const top = document.createElement("div");
+      top.className = "spread";
+
+      const left = document.createElement("div");
+      left.innerHTML = `
+        <div class="learn-tag">🧩 Practice</div>
+        <div class="pt-big">${card.pt}</div>
+        <div class="en-small" data-en="1">${card.en}</div>
+      `;
+
+      const right = document.createElement("div");
+      right.innerHTML = `
+        <label class="pill" style="box-shadow:none; background:rgba(255,255,255,.75);">
+          <input type="checkbox" ${done[card.id] ? "checked":""} />
+          Done
+        </label>
+      `;
+
+      top.appendChild(left);
+      top.appendChild(right);
+
+      const actions = document.createElement("div");
+      actions.className = "big-actions";
+
+      const listen = document.createElement("button");
+      listen.className = "bigbtn primary";
+      listen.type = "button";
+      listen.textContent = "🔊 Listen";
+      listen.addEventListener("click", () => sayPT(card.pt));
+
+      const toggle = document.createElement("button");
+      toggle.className = "bigbtn";
+      toggle.type = "button";
+      toggle.textContent = "👁 Hide English";
+      let hidden = false;
+      toggle.addEventListener("click", () => {
+        hidden = !hidden;
+        left.querySelector('[data-en="1"]').style.visibility = hidden ? "hidden" : "visible";
+        toggle.textContent = hidden ? "👁 Show English" : "👁 Hide English";
+      });
+
+      const copy = document.createElement("button");
+      copy.className = "bigbtn";
+      copy.type = "button";
+      copy.textContent = "📋 Copy PT";
+      copy.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(card.pt); } catch {}
+      });
+
+      actions.appendChild(listen);
+      actions.appendChild(toggle);
+      actions.appendChild(copy);
+
+      const cb = right.querySelector("input");
+      cb.addEventListener("change", () => {
+        const d = getDone();
+        d[card.id] = cb.checked;
+        setDone(d);
+        updateProgressUI();
+      });
+
+      el.appendChild(top);
+      el.appendChild(actions);
+      grid.appendChild(el);
+    });
+
+    updateProgressUI();
+  }
+
+  function loadGameScore(){
+    const s = Number(localStorage.getItem(KEY_GAME));
+    if(!Number.isNaN(s)) gameScore = s;
+    document.getElementById("gameScore").textContent = gameScore;
+  }
+  function saveGameScore(){ localStorage.setItem(KEY_GAME, String(gameScore)); }
+
+  function pickQuestion(){
+    const idx = Math.floor(Math.random() * ACTIVE.length);
+    current = ACTIVE[idx];
+
+    const pool = ACTIVE.filter(c => c.id !== current.id).sort(() => Math.random()-0.5);
+    const choices = [current, pool[0], pool[1]].sort(() => Math.random()-0.5);
+
+    const choicesEl = document.getElementById("choices");
+    choicesEl.innerHTML = "";
+
+    choices.forEach(ch => {
+      const b = document.createElement("button");
+      b.className = "bigbtn";
+      b.type = "button";
+      b.textContent = ch.en;
+      b.addEventListener("click", () => {
+        [...choicesEl.querySelectorAll("button")].forEach(x => x.disabled = true);
+        const ok = ch.id === current.id;
+        const fb = document.getElementById("gameFeedback");
+        if(ok){
+          b.classList.add("good");
+          gameScore += 1;
+          fb.textContent = "✅ Correct!";
+        } else {
+          b.classList.add("bad");
+          fb.textContent = "❌ Not correct. Answer: " + current.en;
+        }
+        document.getElementById("gameScore").textContent = gameScore;
+        saveGameScore();
+      });
+      choicesEl.appendChild(b);
+    });
+
+    document.getElementById("gameFeedback").textContent = "Ready. Click Play sound.";
+  }
+
+  function setLevel(newKey){
+    levelKey = newKey;
+    localStorage.setItem(KEY_LEVEL, levelKey);
+
+    ACTIVE = (levelKey === "L2") ? LEVELS.L2 : LEVELS.L1;
+
+    document.getElementById("btnL1").classList.toggle("primary", levelKey === "L1");
+    document.getElementById("btnL2").classList.toggle("primary", levelKey === "L2");
+
+    document.getElementById("learnTitle").textContent =
+      (levelKey === "L2") ? "Level 2 — School + Food + Free time" : "Level 1 — Start from zero";
+
+    renderCards();
+    pickQuestion();
+  }
+
+  // Allow modules to force Level 2 with a link: aprender.html?level=2
+  const qs = new URLSearchParams(location.search);
+  const forced = qs.get("level");
+  if(forced === "2") levelKey = "L2";
+  if(forced === "1") levelKey = "L1";
+
+  document.getElementById("playSound").addEventListener("click", () => {
+    if(!current) pickQuestion();
+    sayPT(current.pt);
+  });
+
+  document.getElementById("newQuestion").addEventListener("click", pickQuestion);
+
+  document.getElementById("resetProgress").addEventListener("click", () => {
+    localStorage.removeItem(KEY_DONE);
+    localStorage.removeItem(KEY_GAME);
+    gameScore = 0;
+    loadGameScore();
+    renderCards();
+    pickQuestion();
+  });
+
+  document.getElementById("btnL1").onclick = () => setLevel("L1");
+  document.getElementById("btnL2").onclick = () => setLevel("L2");
+
+  setLevel(levelKey);
+  loadGameScore();
+</script>
+
+</body>
+</html>

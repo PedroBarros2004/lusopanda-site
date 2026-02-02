@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LusoPanda — Exercises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a href="index.html" class="brand">
+      <span class="logo">🐼</span>
+      <span class="brand-text">
+        <strong>LusoPanda</strong>
+        <small>Portuguese (Portugal) — Practice</small>
+      </span>
+    </a>
+
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="introducao.html">Intro</a>
+      <a href="aprender.html">Learn</a>
+      <a href="exercicios.html" class="active">Exercises</a>
+      <a href="modulos.html">Modules</a>
+      <a href="escola.html">School</a>
+      <a href="sobre.html">About</a>
+    </nav>
+  </div>
+</header>
+
+<main class="hero">
+  <div class="container">
+
+    <div class="hero-split">
+      <div class="card">
+        <h1 id="levelTitle">Exercises (Level 1) 🎮</h1>
+        <p class="subtitle">Listen. Click. Learn Portuguese from Portugal (pt-PT).</p>
+
+        <section class="card" style="margin-top:12px;">
+          <h2 style="margin-top:0;">Choose a level</h2>
+          <div class="big-actions">
+            <button class="bigbtn primary" id="btnL1">Level 1</button>
+            <button class="bigbtn" id="btnL2">Level 2</button>
+            <button class="bigbtn" id="btnL3">Level 3</button>
+          </div>
+          <p class="muted" style="margin-top:10px;">
+            Level 1 = basics • Level 2 = school Portuguese • Level 3 = food + free time
+          </p>
+        </section>
+
+        <section class="card" style="margin-top:12px;">
+          <div class="spread">
+            <div>
+              <h2 style="margin:0;">Progress</h2>
+              <p class="muted" style="margin:6px 0 0;">Stars: <strong id="stars">0</strong> ⭐</p>
+            </div>
+            <button class="bigbtn" id="resetAll">Reset</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="hero-photo">
+        <img
+          src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=70"
+          alt="Practice games"
+          onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1600&q=70';"
+        >
+      </div>
+    </div>
+
+    <div class="game-grid">
+
+      <section class="game-card">
+        <h3 style="margin:0;">🎧 Game 1 — Listen & choose</h3>
+        <p class="muted" style="margin:6px 0 0;">Press Play. Choose the correct English meaning.</p>
+
+        <div class="big-actions" style="margin-top:10px;">
+          <button class="bigbtn primary" id="g1Play">🔊 Play</button>
+          <button class="bigbtn" id="g1New">🔁 New</button>
+        </div>
+
+        <div class="choice-grid" id="g1Choices"></div>
+        <div id="g1Feedback" class="muted" style="margin-top:10px;"></div>
+      </section>
+
+      <section class="game-card">
+        <h3 style="margin:0;">🧩 Game 2 — Drag to match</h3>
+        <p class="muted" style="margin:6px 0 0;">Press Play. Drag the correct meaning into the box.</p>
+
+        <div class="big-actions" style="margin-top:10px;">
+          <button class="bigbtn primary" id="g2Play">🔊 Play</button>
+          <button class="bigbtn" id="g2New">🔁 New</button>
+        </div>
+
+        <div class="drop-zone" id="dropZone">Drop the correct English meaning here</div>
+        <div id="dragChoices" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;"></div>
+        <div id="g2Feedback" class="muted" style="margin-top:10px;"></div>
+      </section>
+
+      <section class="game-card">
+        <h3 style="margin:0;">🧠 Game 3 — Memory (PT ↔ EN)</h3>
+        <p class="muted" style="margin:6px 0 0;">Find matching pairs: Portuguese and English.</p>
+
+        <div class="choice-grid" id="memoryGrid"></div>
+        <div id="g3Feedback" class="muted" style="margin-top:10px;"></div>
+        <button class="bigbtn" id="g3Reset" style="margin-top:10px;">Reset memory</button>
+      </section>
+
+    </div>
+
+    <div class="actions" style="margin-top:18px;">
+      <a class="btn" href="aprender.html">Back to Learn</a>
+      <a class="btn ghost" href="modulos.html">Go to Modules</a>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <p>© 2025 LusoPanda • AE VJ • Educational Project</p>
+</footer>
+
+<script type="module">
+  import { LEVELS, sayPT } from "./js/app.js";
+
+  /* ===== STARS ===== */
+  let stars = Number(localStorage.getItem("lp_stars")) || 0;
+  const starsEl = document.getElementById("stars");
+  starsEl.textContent = stars;
+
+  function addStar(){
+    stars++;
+    localStorage.setItem("lp_stars", String(stars));
+    starsEl.textContent = stars;
+  }
+
+  /* ===== LEVEL ===== */
+  let ACTIVE = LEVELS.L1;
+
+  // ✅ read URL ?level=1|2|3
+  const qs = new URLSearchParams(window.location.search);
+  const urlLevel = qs.get("level");
+  let level = localStorage.getItem("lp_ex_level") || "L1";
+  if(urlLevel === "1") level = "L1";
+  if(urlLevel === "2") level = "L2";
+  if(urlLevel === "3") level = "L3";
+
+  function setLevel(newLevel){
+    level = newLevel;
+    localStorage.setItem("lp_ex_level", level);
+
+    ACTIVE = (level === "L2") ? LEVELS.L2 : (level === "L3") ? LEVELS.L3 : LEVELS.L1;
+
+    document.getElementById("levelTitle").textContent =
+      `Exercises (${level === "L1" ? "Level 1" : level === "L2" ? "Level 2" : "Level 3"}) 🎮`;
+
+    document.getElementById("btnL1").classList.toggle("primary", level === "L1");
+    document.getElementById("btnL2").classList.toggle("primary", level === "L2");
+    document.getElementById("btnL3").classList.toggle("primary", level === "L3");
+
+    g1Pick();
+    g2Pick();
+    buildMemory();
+  }
+
+  /* ===== GAME 1 ===== */
+  let g1 = null;
+
+  function g1Pick(){
+    g1 = ACTIVE[Math.floor(Math.random()*ACTIVE.length)];
+    const pool = ACTIVE.filter(x => x.id !== g1.id).sort(()=>Math.random()-0.5);
+    const choices = [g1, pool[0], pool[1], pool[2]].sort(()=>Math.random()-0.5);
+
+    const wrap = document.getElementById("g1Choices");
+    wrap.innerHTML = "";
+    document.getElementById("g1Feedback").textContent = "Press Play.";
+
+    choices.forEach(c=>{
+      const b = document.createElement("div");
+      b.className = "choice";
+      b.textContent = c.en;
+      b.onclick = ()=>{
+        [...wrap.querySelectorAll(".choice")].forEach(x=>x.style.pointerEvents="none");
+
+        if(c.id === g1.id){
+          b.classList.add("good");
+          addStar();
+          document.getElementById("g1Feedback").textContent = "✅ Correct!";
+        } else {
+          b.classList.add("bad");
+          document.getElementById("g1Feedback").textContent = "❌ Correct answer: " + g1.en;
+        }
+        setTimeout(()=>g1Pick(), 700);
+      };
+      wrap.appendChild(b);
+    });
+  }
+
+  /* ===== GAME 2 ===== */
+  let g2=null;
+  function g2Pick(){
+    g2 = ACTIVE[Math.floor(Math.random()*ACTIVE.length)];
+    const pool = ACTIVE.filter(x=>x.id !== g2.id).sort(()=>Math.random()-0.5);
+    const opts = [g2.en, pool[0].en, pool[1].en].sort(()=>Math.random()-0.5);
+
+    document.getElementById("dragChoices").innerHTML="";
+    document.getElementById("g2Feedback").textContent = "Press Play, then drag.";
+
+    opts.forEach(t=>{
+      const d=document.createElement("div");
+      d.className="draggable";
+      d.textContent=t;
+      d.draggable=true;
+      d.ondragstart=e=>e.dataTransfer.setData("text/plain", t);
+      document.getElementById("dragChoices").appendChild(d);
+    });
+  }
+
+  const drop = document.getElementById("dropZone");
+  drop.ondragover = e => e.preventDefault();
+  drop.ondrop = e => {
+    e.preventDefault();
+    const t = e.dataTransfer.getData("text/plain");
+    if(!g2) return;
+
+    if(t === g2.en){
+      addStar();
+      document.getElementById("g2Feedback").textContent = "✅ Correct!";
+    } else {
+      document.getElementById("g2Feedback").textContent = "❌ Correct answer: " + g2.en;
+    }
+    setTimeout(()=>g2Pick(), 650);
+  };
+
+  /* ===== GAME 3 — Memory ===== */
+  let firstCard = null;
+  let lock = false;
+
+  function buildMemory(){
+    const pick = [...ACTIVE].sort(()=>Math.random()-0.5).slice(0,4);
+
+    const cards = [];
+    pick.forEach(p=>{
+      cards.push({ pairId: p.id, kind:"pt", value: p.pt });
+      cards.push({ pairId: p.id, kind:"en", value: p.en });
+    });
+    cards.sort(()=>Math.random()-0.5);
+
+    const grid = document.getElementById("memoryGrid");
+    grid.innerHTML = "";
+    firstCard = null;
+    lock = false;
+    document.getElementById("g3Feedback").textContent = "Find pairs (PT ↔ EN).";
+
+    cards.forEach(card=>{
+      const el = document.createElement("div");
+      el.className = "choice";
+      el.textContent = "❔";
+      el.dataset.pairId = card.pairId;
+      el.dataset.kind = card.kind;
+      el.dataset.value = card.value;
+      el.dataset.revealed = "0";
+      el.dataset.matched = "0";
+
+      el.onclick = () => {
+        if(lock) return;
+        if(el.dataset.matched === "1") return;
+        if(el.dataset.revealed === "1") return;
+
+        reveal(el);
+
+        if(!firstCard){
+          firstCard = el;
+          return;
+        }
+
+        lock = true;
+
+        const isMatch =
+          firstCard.dataset.pairId === el.dataset.pairId &&
+          firstCard.dataset.kind !== el.dataset.kind;
+
+        if(isMatch){
+          firstCard.dataset.matched = "1";
+          el.dataset.matched = "1";
+          firstCard.classList.add("good");
+          el.classList.add("good");
+          addStar();
+          document.getElementById("g3Feedback").textContent = "✅ Match!";
+          firstCard = null;
+          lock = false;
+        } else {
+          firstCard.classList.add("bad");
+          el.classList.add("bad");
+          document.getElementById("g3Feedback").textContent = "❌ Try again.";
+          setTimeout(()=>{
+            hide(firstCard);
+            hide(el);
+            firstCard.classList.remove("bad");
+            el.classList.remove("bad");
+            firstCard = null;
+            lock = false;
+          }, 550);
+        }
+      };
+
+      grid.appendChild(el);
+    });
+  }
+
+  function reveal(el){
+  el.textContent = el.dataset.value;
+  el.dataset.revealed = "1";
+
+  // ✅ AUDIO for learning: only speak Portuguese cards in memory
+  if(el.dataset.kind === "pt"){
+    sayPT(el.dataset.value);
+  }
+}
+
+  
+  function hide(el){
+    el.textContent = "❔";
+    el.dataset.revealed = "0";
+  }
+
+  /* ===== INIT ===== */
+  document.getElementById("btnL1").onclick = ()=>setLevel("L1");
+  document.getElementById("btnL2").onclick = ()=>setLevel("L2");
+  document.getElementById("btnL3").onclick = ()=>setLevel("L3");
+
+  document.getElementById("g1Play").onclick = ()=> g1 && sayPT(g1.pt);
+  document.getElementById("g1New").onclick = g1Pick;
+
+  document.getElementById("g2Play").onclick = ()=> g2 && sayPT(g2.pt);
+  document.getElementById("g2New").onclick = g2Pick;
+
+  document.getElementById("g3Reset").onclick = buildMemory;
+
+  document.getElementById("resetAll").onclick = ()=>{
+    stars = 0;
+    localStorage.setItem("lp_stars", "0");
+    starsEl.textContent = "0";
+    buildMemory();
+    g1Pick();
+    g2Pick();
+  };
+
+  setLevel(level);
+</script>
+
+</body>
+</html>
